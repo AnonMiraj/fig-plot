@@ -9,7 +9,7 @@ module fp_frame
     real :: width , height
     logical :: grid_enable = .false.
     integer :: frame_type = FULL_FRAME
-    real :: axis_font_size = 11.0
+    real :: axis_font_size = 15.0
     real :: MARKER_LENGTH = 5.0
     character(9) :: TEXT_FONT= 'monospace'
 
@@ -55,7 +55,7 @@ contains
     
     call this%draw_axes(frame_drawing, x, y)
     if (this%frame_type == FULL_FRAME) then
-      call this%draw_full_frame(frame_drawing, x, y)
+    call this%draw_full_frame(frame_drawing, x, y)
     else
       call this%draw_axes_only(frame_drawing, x, y)
     end if
@@ -122,11 +122,12 @@ contains
         marker_line%p2%y =  y + mark%pos
         marker_line%stroke_color = Border_color
         call frame_drawing%add_shape(marker_line)
-        text_node%p%x=x-2*this%MARKER_LENGTH
+        text_node%p%x=x-2*this%MARKER_LENGTH - 60
         text_node%p%y=y+mark%pos + font_em * 4.0
         text_node%content= mark%txt
         text_node%size=this%axis_font_size
         text_node%font_family= this%TEXT_FONT
+        text_node%stroke_color = FIG_COLOR_BLACK
         call frame_drawing%add_shape(text_node)
 
         if (this%grid_enable) then
@@ -146,16 +147,17 @@ contains
       do i = 1, size(this%bottom_markers)
         mark = this%bottom_markers(i)
         marker_line%p1%x =  x + mark%pos
-        marker_line%p1%y =  y + mark%pos
+        marker_line%p1%y =  y + this%height
         marker_line%p2%x =  x + mark%pos
         marker_line%p2%y =  y + this%height + this%MARKER_LENGTH
         marker_line%stroke_color = Border_color
         call frame_drawing%add_shape(marker_line)
-        text_node%p%x=x+mark%pos
-        text_node%p%y=y+mark%pos + font_em * 16.0
+        text_node%p%x=x+mark%pos - 30
+        text_node%p%y=y+ this%height + this%MARKER_LENGTH + font_em * 16.0 
         text_node%content= mark%txt
-        text_node%size=this%axis_font_size
-        text_node%font_family= this%TEXT_FONT
+        text_node%size=this%axis_font_size -1
+        text_node%font_family= this%TEXT_FONT 
+        text_node%stroke_color = FIG_COLOR_BLACK
         call frame_drawing%add_shape(text_node)
 
         if (this%grid_enable) then
@@ -194,14 +196,21 @@ contains
     character(len=*), intent(in) :: txt
 
     type(Marker) :: new_marker
+    type(Marker), allocatable :: temp_array(:)
+    integer :: n
+
     new_marker%pos = pos
-    new_marker%txt  = txt 
+    new_marker%txt = txt
+    print *,new_marker
     if (.not. allocated(marker_array)) then
       allocate(marker_array(1))
       marker_array(1) = new_marker
     else
-      allocate(marker_array(size(marker_array) + 1))
-      marker_array(size(marker_array)) = new_marker
+      n = size(marker_array)
+      allocate(temp_array(n + 1))
+      temp_array(1:n) = marker_array
+      temp_array(n + 1) = new_marker
+      call move_alloc(temp_array, marker_array)
     end if
   end subroutine add_marker
 end module fp_frame
