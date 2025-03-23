@@ -16,8 +16,8 @@ module fp_figure
   contains
     procedure(build), deferred :: build
     procedure(clear), deferred :: clear
-    procedure :: save_to_png => figure_save_svg
-    procedure :: save_to_svg => figure_save_png
+    procedure :: save_to_png => figure_save_png
+    procedure :: save_to_svg => figure_save_svg
   end type Figure
 
   abstract interface
